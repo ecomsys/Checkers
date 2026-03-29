@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useSound } from "@/hooks/useSound";
+import { useNavigate } from "react-router-dom";
 
 import { useGameStore } from "@/store/useGameStore";
 import { useSearchParams } from "react-router-dom";
 
-import { GameHeader } from "@/pages/Game/GameHeader";
+import { GameHeader } from "@/pages/Game/GameHeader/Header";
 import { BoardCanvas } from "@/pages/Game/BoardCanvas/BoardCanvas";
 
 import type { CheckersState, Position, GameMode } from "@/types/types";
@@ -18,25 +19,49 @@ export default function Game() {
     player,
     selectPiece,
     makeMove,
+    restartGame
   } = useGameStore();
 
+  const navigate = useNavigate();
+  const prevMovesRef = useRef(0);
+
   const [searchParams] = useSearchParams();
-  const mode = searchParams.get("mode") as GameMode; // "pve" | "eve"
+  const modeParams = searchParams.get("mode") as GameMode; // "pve" | "eve"
+
+  const mode = modeParams || "pve";
+  const playMoveSound = useSound("/games/checkers/sounds/move.mp3");
 
   useEffect(() => {
-    initPlayer(); 
-  
+    initPlayer();
     connect(mode);
   }, [mode]);
 
-  const playMoveSound = useSound("/sounds/move.mp3");
+  useEffect(() => {
+    if (!game?.history) return;
+
+    const currentMoves = game.history.length;
+
+    // первый рендер пропускаем
+    if (prevMovesRef.current === 0) {
+      prevMovesRef.current = currentMoves;
+      return;
+    }
+
+    // если появился новый ход → играем звук
+    if (currentMoves > prevMovesRef.current) {
+      playMoveSound();
+    }
+
+    prevMovesRef.current = currentMoves;
+  }, [game?.history]);
+
+
+  const leave = () => {
+    navigate("/home");
+  }
 
   if (!game) {
-    return (
-      <h1 className="text-3xl p-10 text-center text-red-500">
-        Игра загружается...
-      </h1>
-    );
+    return null
   }
 
   const checkersState = game.state as CheckersState | undefined;
@@ -82,20 +107,8 @@ export default function Game() {
           to: pos,
         },
       });
-
-      playMoveSound();
     }
   };
-
-  const handleRestart = () => {
-    // можно просто перезапустить игру (или оставить как есть)
-    window.location.reload();
-  };
-
-  const currentTurnPlayerId =
-    game.players[
-      checkersState.currentPlayer === "w" ? 0 : 1
-    ]?.id ?? null;
 
   let playerColor: "w" | "b" = "w";
 
@@ -109,13 +122,8 @@ export default function Game() {
   }
 
   return (
-    <div className="bg-gray-50 flex flex-col h-screen">
-      <GameHeader
-        game={game}
-        roomPlayers={game.players}
-        currentPlayerId={player?.id ?? null}
-        currentTurnPlayerId={currentTurnPlayerId}
-      />
+    <div className="flex flex-col h-screen py-4 gap-4 px-[0.9375rem] sm:px-[1.25rem] min-w-[20rem]">
+      <GameHeader game={game} onRestart={restartGame} />
 
       <BoardCanvas
         board={checkersState.board}
@@ -127,7 +135,7 @@ export default function Game() {
       />
 
       {checkersState.completed && checkersState.winner && (
-        <Modal state={checkersState} onRestart={handleRestart} />
+        <Modal state={checkersState} onRestart={restartGame} onLeave={leave} />
       )}
     </div>
   );

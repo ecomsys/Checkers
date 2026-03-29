@@ -1,6 +1,6 @@
 import { type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { AppButton } from "@/components/ui/appButton";
+import { AppButton } from "@/components/appButton";
 
 type HeaderProps = {
   title: string;
@@ -28,7 +28,7 @@ export const Header = ({ title, rightContent }: HeaderProps) => {
             className="p-2 !text-base"
           >
            <svg className="w-5 h-5 flex-shrink-0 transition-transform duration-200 text-white">
-              <use xlinkHref={`/icons/sprite/sprite.svg#home`} />
+              <use xlinkHref={`${import.meta.env.BASE_URL}/icons/sprite/sprite.svg#home`} />
             </svg>
           </AppButton>
         </div>

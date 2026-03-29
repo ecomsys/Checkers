@@ -3,16 +3,42 @@
   <head>
     <meta charset="UTF-8" />
 
-    <!-- FAVICON (поменяешь пути потом) -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="apple-touch-icon" href="/icon-192.png" />
-
     <!-- MOBILE VIEWPORT -->
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
+
+    <script>
+      window.addEventListener("DOMContentLoaded", () => {
+        (function forceDesktopLayout() {
+          const BREAKPOINT = 1536;
+          const DESIGN_WIDTH = 1920;
+
+          const screenWidth = window.screen.width;
+          const dpr = window.devicePixelRatio || 1;
+          const realWidth = screenWidth / dpr;
+
+          const meta = document.querySelector('meta[name="viewport"]');
+          if (!meta) return;
+
+          if (realWidth < BREAKPOINT) {
+            meta.setAttribute("content", "width=device-width, initial-scale=1");
+            console.log("adaptive mode:", realWidth);
+            return;
+          }
+
+          const scale = realWidth / DESIGN_WIDTH;
+
+          meta.setAttribute(
+            "content",
+            `width=${DESIGN_WIDTH}, initial-scale=${scale}, maximum-scale=${scale}, user-scalable=no`,
+          );
+
+          console.log("forced 1920 mode:", { realWidth, scale });
+        })();
+      });
+    </script>
 
     <!-- ОСНОВНОЙ SEO -->
     <title>Шашки без дамок — играть бесплатно против бота</title>
@@ -31,8 +57,8 @@
     <meta name="robots" content="index, follow" />
 
     <!-- THEME COLOR -->
-    <meta name="theme-color" content="#4338ca" />
-    <meta name="msapplication-navbutton-color" content="#4338ca" />
+    <meta name="theme-color" content="#53c79c" />
+    <meta name="msapplication-navbutton-color" content="#53c79c" />
 
     <!-- iOS PWA -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -66,7 +92,7 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta
       name="twitter:title"
-      content="Онлайн без дамок — бесплатно в браузере"
+      content="Шашки без дамок — бесплатно в браузере"
     />
     <meta name="twitter:description" content="Играй в шашки против бота." />
     <meta
@@ -76,16 +102,11 @@
 
     <!-- CANONICAL -->
     <link rel="canonical" href="https://games.ecomsys.ru/games/checkers" />
+    <link rel="icon" type="image/png" href="/games/checkers/favicon.png" />
 
     <!-- PWA manifest (если захочешь как приложение) -->
-    <link rel="manifest" href="/manifest.json" />
-
-    <!-- PRELOAD (ускорение шрифтов/логотипа если есть) -->
-    <!--
-    <link rel="preload" href="/fonts/main.woff2" as="font" type="font/woff2" crossorigin>
-    -->
+    <link rel="manifest" href="/games/checkers/manifest.json" />
   </head>
-
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

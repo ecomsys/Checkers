@@ -1,7 +1,7 @@
 import type { Game, Move, CheckersMove, CheckersState } from "@/types/types";
 import { CheckersService } from "./services";
 import { triggerAIMoveIfNeeded } from "./triggerAI";
-import type { WorkerResponse } from "@/workers/workerTypes";
+import type { WorkerResponse } from "@/workers/types";
 
 type EmitFn = (msg: WorkerResponse) => void;
 

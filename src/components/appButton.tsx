@@ -4,8 +4,9 @@ import clsx from "clsx";
 type ButtonProps = {
   children: React.ReactNode;
   onClick?: () => void;
-  variant?: "primary" | "secondary" | "accent" | "danger";
+  variant?: "primary" | "secondary" | "accent" | "danger" | "none";
   className?: string;
+  title?: string;
   disabled?: boolean;
 };
 
@@ -14,10 +15,11 @@ export const AppButton = ({
   onClick,
   variant = "primary",
   className,
+  title,
   disabled = false,
 }: ButtonProps) => {
   const baseClasses =
-    "px-6 py-3 rounded-xl font-semibold shadow-lg transition transform active:scale-95";
+    "rounded-xl font-semibold transition transform active:scale-95";
 
   const variantClasses = {
     primary:
@@ -28,11 +30,13 @@ export const AppButton = ({
       "bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 hover:shadow-xl",
     danger:
       "bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 hover:shadow-xl",
+    none: ""
   };
 
   return (
     <button
       onClick={onClick}
+      title={title}
       disabled={disabled}
       className={clsx(
         baseClasses,

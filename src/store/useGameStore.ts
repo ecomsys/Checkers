@@ -11,7 +11,7 @@ import type {
   CheckersState,
 } from "../types/types";
 
-import type { WorkerRequest, WorkerResponse } from "@/workers/workerTypes";
+import type { WorkerRequest, WorkerResponse } from "@/workers/types";
 import { generateId } from "@/utils/generate";
 
 interface GameStoreState {
@@ -22,6 +22,7 @@ interface GameStoreState {
   connect: (mode: GameMode) => void;
   initPlayer: () => Player;
 
+  restartGame: () => void;
   selectPiece: (pos: Position) => void;
   makeMove: (move: Move<CheckersMove>) => void;
 }
@@ -41,7 +42,7 @@ export const useGameStore = create<GameStoreState>()(
         const player: Player = {
           id: generateId(),
           username: "Player",
-          photo_url: "/images/webp/avatar.webp",
+          photo_url: "/games/checkers/images/webp/avatar.webp",
           isAi: false
         };
 
@@ -57,10 +58,8 @@ export const useGameStore = create<GameStoreState>()(
           prevWorker.terminate();
         }
 
-        set({ game: null });
-
         const worker = new Worker(
-          new URL("@/workers/gameWorker.ts", import.meta.url),
+          new URL("@/workers/worker.ts", import.meta.url),
           { type: "module" }
         );
 
@@ -94,7 +93,6 @@ export const useGameStore = create<GameStoreState>()(
 
         const player = get().initPlayer();
 
-        // регистрируем игрока (если нужно в будущем)
         worker.postMessage({
           type: "register_player",
           payload: player,
@@ -102,25 +100,94 @@ export const useGameStore = create<GameStoreState>()(
 
         const existingGame = get().game;
 
-        if (existingGame && existingGame.mode === mode) {
-          // восстанавливаем игру в воркере
-          worker.postMessage({
-            type: "restore_game",
-            payload: existingGame,
-          } satisfies WorkerRequest);
-        } else {
-          //  если режим другой — сбрасываем
-          set({ game: null });
-          // создаём игру 
-          worker.postMessage({
-            type: "create_game",
-            payload: {
-              creator: player,
-              type: "checkers",
-              mode: mode,
-            },
-          } satisfies WorkerRequest);
+        // КЛЮЧЕВАЯ ЛОГИКА
+        if (existingGame) {
+          if (existingGame.mode === mode) {
+            // ЭТО RELOAD → ВОССТАНАВЛИВАЕМ
+            worker.postMessage({
+              type: "restore_game",
+              payload: existingGame,
+            } satisfies WorkerRequest);
+
+            return; // ВАЖНО — не идти дальше
+          } else {
+            // СМЕНИЛСЯ РЕЖИМ → ЧИСТИМ
+            set({ game: null });
+          }
         }
+
+        // СОЗДАЁМ НОВУЮ ИГРУ
+        worker.postMessage({
+          type: "create_game",
+          payload: {
+            creator: player,
+            type: "checkers",
+            mode: mode,
+          },
+        } satisfies WorkerRequest);
+      },
+
+      /* ---------- restart new worker ---------- */
+      restartGame: () => {
+        const { worker, player, game } = get();
+        if (!player || !game) return;
+
+        // УБИВАЕМ СТАРЫЙ WORKER
+        if (worker) {
+          worker.terminate();
+        }
+
+        // Чистим состояние
+        set({ game: null, worker: null });
+
+        // СОЗДАЁМ НОВЫЙ WORKER
+        const newWorker = new Worker(
+          new URL("@/workers/worker.ts", import.meta.url),
+          { type: "module" }
+        );
+
+        set({ worker: newWorker });
+
+        // подписка на сообщения
+        newWorker.onmessage = (event: MessageEvent<WorkerResponse>) => {
+          const message = event.data;
+
+          switch (message.type) {
+            case "game_updated":
+              set({ game: message.payload });
+              break;
+
+            case "game_finished":
+              set((state) => {
+                if (!state.game) return state;
+
+                return {
+                  game: {
+                    ...state.game,
+                    status: "finished",
+                    winner: message.payload.winnerId,
+                  },
+                };
+              });
+              break;
+          }
+        };
+
+        // регистрируем игрока
+        newWorker.postMessage({
+          type: "register_player",
+          payload: player,
+        });
+
+        // создаём новую игру
+        newWorker.postMessage({
+          type: "create_game",
+          payload: {
+            creator: player,
+            type: "checkers",
+            mode: game.mode,
+          },
+        });
       },
 
       /* ---------- checkers ---------- */

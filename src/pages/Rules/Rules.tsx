@@ -1,65 +1,85 @@
-import { RulesCard } from "./RulesCard";
-import { Header } from "@/components/header";
-
-// Мока-данные правил
-// Мока-данные правил для русских шашек без дамок
-const RULES = [
-  {
-    title: "Цель игры",
-    description:
-      "Захватить все шашки соперника или заблокировать их, чтобы он не мог сделать ход."
-  },
-  {
-    title: "Ход игрока",
-    description:
-      "Игрок делает один ход за раз, двигая шашку по диагонали только вперёд."
-  },
-  {
-    title: "Побивание (обязательный ход)",
-    description:
-      "Если можно побить шашку соперника, ход обязательный. Можно бить несколько шашек за один ход. Побивать разрешается в любом направлении (вперёд и назад), но обычные ходы всегда только вперёд."
-  },
-  {
-    title: "Шашка в тупике",
-    description:
-      "Если шашка оказалась в тупике и не может ходить, она остаётся на доске, но больше не участвует в игре."
-  },
-  {
-    title: "Конец игры",
-    description:
-      "Игра заканчивается, когда у одного игрока не остаётся шашек или нет возможных ходов. Побеждает тот игрок, который может сделать ход, даже если у него меньше шашек."
-  }
-];
-
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useGameStore } from "@/store/useGameStore";
 
 export default function Rules() {
+  const navigate = useNavigate();
+  const { game } = useGameStore();
+
+
+  const rulesList = [
+    "Цель игры — захватить все шашки соперника или заблокировать их.",
+    "Игрок делает один ход за раз, двигая шашку по диагонали только вперёд.",
+    "Если есть возможность побить шашку соперника — ход обязателен.",
+    "За один ход можно совершать несколько взятий подряд.",
+    "Бить шашки можно в любом направлении (вперёд и назад), но обычные ходы выполняются только вперёд.",
+    "Если шашка оказалась заблокирована и не может двигаться — она остаётся на доске.",
+    "Игра заканчивается, когда у одного игрока не остаётся шашек или нет возможных ходов."
+  ];
+
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setVisible(true), 50);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  const mode = game?.mode === "pve" ? "pve" : "eve"; // default to "eve" if game or mode is undefined
+
+  const buttonBase =
+    "font-[Montserrat] font-bold text-xl md:text-2xl px-6 py-3 rounded-2xl transition-all duration-200 shadow-md w-full max-w-xs";
+
+  const buttonTeal =
+    "bg-gradient-to-br from-teal-500 via-teal-600 to-teal-700 text-white hover:scale-105 active:translate-y-[0.0625rem]";
+
   return (
-    <div className="h-screen flex flex-col">
-      {/* Header */}
-      <Header title="Правила игры" />
+    <div className="flex flex-col gap-8 px-4 py-8 bg-teal-50/10 items-center w-full min-w-[20rem]">
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto bg-gray-50 px-6 pt-6">
-        <div className="max-w-5xl mx-auto space-y-6 pb-20">
-          {/* Заголовок и описание (по центру) */}
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold mb-2">Добро пожаловать в шашки!</h2>
-            <p className="text-lg font-semibold text-gray-700 max-w-[800px] mx-auto">
-              Здесь описаны основные правила игры. Следуйте им, чтобы быстро освоить игру и получать удовольствие.
-            </p>
-          </div>
+      {/* Кнопка назад */}
+      <button
+        className={`${buttonBase} ${buttonTeal} cursor-pointer`}
+        onClick={() => navigate(`/game?mode=${mode}`)}
+      >
+        Назад
+      </button>
 
-          {/* Список правил */}
-          {RULES.map((rule, idx) => (
-            <RulesCard
-              key={idx}
-              index={idx}
-              title={rule.title}
-              description={rule.description}
-            />
-          ))}
-        </div>
-      </div>
+      {/* Заголовок */}
+      <h1 className="text-4xl md:text-5xl font-extrabold bg-clip-text text-transparent 
+                     bg-gradient-to-r from-teal-500 via-teal-600 to-teal-700 text-center">
+        Правила игры
+      </h1>
+
+      {/* Вступление */}
+      <p
+        className={`text-xl md:text-2xl max-w-2xl text-teal-900 text-center transition-all duration-500 ease-out ${
+          visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+        }`}
+      >
+        Добро пожаловать в русские шашки без дамок! Ниже описаны основные правила игры:
+      </p>
+
+      {/* Список правил */}
+      <ul className="flex flex-col gap-4 max-w-3xl w-full">
+        {rulesList.map((rule, index) => (
+          <li
+            key={index}
+            className="bg-gradient-to-br from-teal-400 via-teal-500 to-teal-600 
+                       rounded-2xl p-4 shadow-[0_0.375rem_0.625rem_rgba(0,0,0,0.2),0_0.125rem_0.25rem_rgba(0,0,0,0.1)]
+                       text-white font-semibold text-lg transition-all transform duration-500 ease-out"
+            style={{
+              transitionDelay: `${index * 150}ms`,
+              transitionProperty: "opacity, transform",
+              transitionDuration: "500ms",
+              transitionTimingFunction: "ease-out",
+              opacity: visible ? 1 : 0,
+              transform: visible ? "translateY(0)" : "translateY(1rem)"
+            }}
+          >
+            <span className="font-bold mr-2">{index + 1}.</span>
+            {rule}
+          </li>
+        ))}
+      </ul>
     </div>
   );
-};
+}

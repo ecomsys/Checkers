@@ -19,6 +19,21 @@ export function triggerAIMoveIfNeeded(
 
   if (!isAITurn) return;
 
+  // проверяем есть ли обязательное взятие
+  const hasForcedCapture =
+    state.forcedPiece ||
+    (state.mandatoryPieces && state.mandatoryPieces.length > 0);
+
+  // если нужно бить — быстро
+  let delay: number;
+
+  if (hasForcedCapture) {
+    delay = 650; // быстро, без раздумий
+  } else {
+    // обычный "thinking"
+    delay = Math.random() * (2000 - 800) + 800;
+  }
+
   setTimeout(() => {
     const freshState = game.state as CheckersState;
     if (!freshState || freshState.completed) return;
@@ -35,5 +50,5 @@ export function triggerAIMoveIfNeeded(
       playerId: aiPlayer.id,
       payload,
     });
-  }, 1000);
+  }, delay);
 }

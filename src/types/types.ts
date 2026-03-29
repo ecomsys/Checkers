@@ -19,7 +19,7 @@ export interface Game<TState = unknown, TMovePayload = unknown> {
   type: string; // название игры ("checkers", "cards", ...)
   players: Player[];
   status: "waiting" | "started" | "finished";
-  creator: Player; 
+  creator: Player;  
   mode: GameMode; 
   history: Move<TMovePayload>[]; // история ходов
   state?: TState; // текущее состояние игры (например CheckersState)
@@ -58,6 +58,8 @@ export interface CheckersState {
   mandatoryPieces?: Position[];
   forcedPiece?: Position | null;
   movesCount: number;
-  completed: boolean;
+  completed: boolean;  
   winner?: "w" | "b";
+  time?: number;
+  startedAt?: number;
 }

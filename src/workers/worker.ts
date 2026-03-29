@@ -9,7 +9,7 @@ import type {
   CheckersState,
 } from "../types/types";
 
-import type { WorkerRequest, WorkerResponse } from "./workerTypes";
+import type { WorkerRequest, WorkerResponse } from "./types";
 
 import { initCheckersGame } from "../logic/init";
 import { CheckersService } from "../logic/services";
@@ -19,18 +19,21 @@ import { applyCheckersMove } from "@/logic/applyMove";
 // ---------------- STATE ----------------
 let game: Game<CheckersState, CheckersMove> | null = null;
 
+let timerInterval: ReturnType<typeof setInterval> | null = null;
+let gameStartedAt: number | null = null;
+
 // ---------------- AI ----------------
 const AI_BOT_1: Player = {
   id: "aibot-1",
   username: "AI 1",
-  photo_url: "/images/webp/ai.webp",
+  photo_url: "/games/checkers/images/webp/ai.webp",
   isAi: true,
 };
 
 const AI_BOT_2: Player = {
   id: "aibot-2",
   username: "AI 2",
-  photo_url: "/images/webp/ai.webp",
+  photo_url: "/games/checkers/images/webp/ai.webp",
   isAi: true,
 };
 
@@ -48,6 +51,8 @@ self.onmessage = (event: MessageEvent<WorkerRequest>) => {
     case "create_game": {
       const payload = message.payload;
 
+      stopTimer();
+
       if (payload.mode === "pve") {
 
         game = {
@@ -61,10 +66,14 @@ self.onmessage = (event: MessageEvent<WorkerRequest>) => {
           state: initCheckersGame(),
         };
 
+        gameStartedAt = Date.now();
+
         emit({
           type: "game_updated",
           payload: game,
         });
+
+        startTimer();
 
       } else {
         game = {
@@ -78,10 +87,14 @@ self.onmessage = (event: MessageEvent<WorkerRequest>) => {
           state: initCheckersGame(),
         };
 
+        gameStartedAt = Date.now();
+
         emit({
           type: "game_updated",
           payload: game,
         });
+
+        startTimer();
 
         triggerAIMoveIfNeeded(game, (aiMove) => {
           applyCheckersMove(game!, aiMove, emit);
@@ -89,10 +102,17 @@ self.onmessage = (event: MessageEvent<WorkerRequest>) => {
       }
       break;
     }
-   
+
 
     case "restore_game": {
       game = message.payload;
+
+      if (game.status === "started") {
+        // пересчитываем старт (если уже есть time)
+        gameStartedAt = Date.now() - (game.state?.time ?? 0) * 1000;
+
+        startTimer();
+      }
 
       emit({
         type: "game_updated",
@@ -161,6 +181,8 @@ function handleMove(
 
   // finish
   if (state?.completed) {
+    stopTimer();
+
     emit({
       type: "game_finished",
       payload: {
@@ -175,4 +197,42 @@ function handleMove(
   triggerAIMoveIfNeeded(game, (aiMove) => {
     handleMove(game, aiMove);
   });
+}
+
+
+// ---------------- Internal timer services ----------------
+function startTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+
+  if (!game) return;
+
+  // если уже есть старт — не перезапускаем
+  if (!gameStartedAt) {
+    gameStartedAt = Date.now();
+  }
+
+  timerInterval = setInterval(() => {
+    if (!game || !game.state) return;
+    if (game.status !== "started") return;
+
+    const elapsed = Math.floor((Date.now() - gameStartedAt!) / 1000);
+
+    // 24 часа = 86400 секунд
+    const secondsInDay = 86400;
+
+    // обнуляем каждые сутки
+    game.state.time = elapsed % secondsInDay;
+
+    emit({
+      type: "game_updated",
+      payload: game,
+    });
+  }, 250);
+}
+
+function stopTimer() {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
 }
