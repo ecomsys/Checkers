@@ -1,6 +1,7 @@
 import { type FC, useEffect, useState } from "react";
 import Confetti from "react-confetti";
 import type { CheckersState } from "@/types/types";
+import { useGameStore } from "@/store/useGameStore";
 
 interface ModalProps {
   state: CheckersState;
@@ -10,12 +11,14 @@ interface ModalProps {
 
 const Modal: FC<ModalProps> = ({ state, onRestart, onLeave }) => {
   const [confetti, setConfetti] = useState(false);
+  const { sounds } = useGameStore();
 
   useEffect(() => {
     queueMicrotask(() => setConfetti(true));
-
-    const audio = new Audio("/games/checkers/sounds/win.mp3");
-    audio.play().catch(() => { });
+    if (!sounds) {
+      const audio = new Audio("/games/checkers/sounds/win.mp3");
+      audio.play().catch(() => { });
+    }
   }, []);
 
   if (!state.completed || !state.winner) return null;
@@ -88,7 +91,7 @@ const Modal: FC<ModalProps> = ({ state, onRestart, onLeave }) => {
                          px-6 py-3 rounded-xl w-full max-w-[12rem] cursor-pointer"
               onClick={onRestart}
             >
-             <span>Заново</span>
+              <span>Заново</span>
             </button>
           </div>
         </div>

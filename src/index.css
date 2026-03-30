@@ -1,27 +1,6 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
-html {
-  scrollbar-gutter: stable;
-}
-
-html {
-  min-height: 100%;
-  position: relative;
-}
-
-html:after {
-  position: fixed;
-  content: "";
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  background: url('/images/webp/app-bg.webp') center center no-repeat;
-  background-size: cover;
-  z-index: -10;
-}
-
 @keyframes gradient-x {
 
   0%,
@@ -38,7 +17,6 @@ html:after {
   background-size: 200% 200%;
   animation: gradient-x 8s ease infinite;
 }
-
 
 /********************************************
 Лоадер
@@ -60,7 +38,7 @@ html:after {
 
 
 .color {
-  color: green;
+  color: #7bad89;
 }
 
 
@@ -74,4 +52,13 @@ html:after {
 
 .app--visible {
   opacity: 1;
+}
+
+
+.scroll-none {  
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE/Edge старый */
+ 
 }

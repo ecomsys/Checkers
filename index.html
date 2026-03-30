@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" >
   <head>
     <meta charset="UTF-8" />
 
@@ -107,8 +107,11 @@
     <!-- PWA manifest (если захочешь как приложение) -->
     <link rel="manifest" href="/games/checkers/manifest.json" />
   </head>
-  <body>
-    <div id="root"></div>
+  <body class="m-0 bg-[#7bad89]">
+    <div class="fixed inset-0 ">
+      <img src="/images/webp/app-bg.webp" class="w-full h-full object-cover" />
+    </div>
+    <div id="root" class="h-[100dvh] overflow-y-auto relative z-1"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

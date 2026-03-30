@@ -15,14 +15,14 @@ export default function Home() {
   `;
 
   return (
-    <div className="h-screen w-screen flex flex-col items-center justify-center px-5 relative min-w-[20rem]">
+    <div className="mt-25 sm:mt-0 h-full sm:h-[100dvh] flex flex-col items-center justify-center px-2.5 relative min-w-[20rem]">
 
       {/* КНОПКА НАЗАД (fixed) */}
       <a
         href="https://games.ecomsys.ru"
         className="
           cursor-pointer
-          fixed top-4 xs:top-8 left-8
+          fixed top-4 sm:top-8 left-2.5 sm:left-8
           w-[5rem] h-[5rem]
           rounded-full
           flex items-center justify-center

@@ -10,10 +10,11 @@ import type { Game, CheckersState } from "@/types/types";
 interface GameHeaderProps {
   game: Game<CheckersState>,
   onRestart?: () => void;
+  toggleSounds: () => void;
+  sounds: boolean;
 }
 
-export function GameHeader({ game, onRestart
-}: GameHeaderProps) {
+export function GameHeader({ game, onRestart, toggleSounds , sounds }: GameHeaderProps) {
   const navigate = useNavigate();
   const state = game.state;
 
@@ -47,7 +48,7 @@ export function GameHeader({ game, onRestart
 
   return (
     <div className="bg-gradient-to-r from-teal-500 via-teal-600 to-teal-700 border border-teal-600/40 shadow-[0_0.625rem_1.25rem_rgba(0,0,0,0.25),0_0.25rem_0.375rem_rgba(0,0,0,0.15)] 
-    px-5 md:px-10 py-2 md:py-4 rounded-[2.5rem] gap-2.5 md:gap-6 w-full max-w-3xl mx-auto 
+    px-2 sm:px-5 md:px-10 py-2 md:py-4 rounded-[2.5rem] gap-2.5 md:gap-6 w-full max-w-3xl mx-auto 
     flex items-center justify-center xs:justify-evenly flex-wrap md:flex-nowrap">
 
       {/* КНОПКА */}
@@ -62,15 +63,15 @@ export function GameHeader({ game, onRestart
         </svg>
       </AppButton>
 
-      {/* Инфо */}
+      {/* звуки  */}
       <AppButton
         variant="none"
-        title="Правила игры"
+        title="Переключить звуки"
         className="cursor-pointer"
-        onClick={() => navigate("/rules")}
+        onClick={toggleSounds}
       >
-        <svg className="w-10 h-10 text-white hover:text-amber-300 transition duration-300">
-          <use xlinkHref={`${import.meta.env.BASE_URL}/icons/sprite/sprite.svg#info`} />
+        <svg className={`w-10 h-10 ${sounds ? "text-amber-500" : "text-white"} hover:text-amber-300 transition duration-300`}>
+          <use xlinkHref={`${import.meta.env.BASE_URL}/icons/sprite/sprite.svg#sounds`} />
         </svg>
       </AppButton>
 

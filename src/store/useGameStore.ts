@@ -19,6 +19,11 @@ interface GameStoreState {
   player: Player | null;
   game: Game<CheckersState, CheckersMove> | null;
 
+  sounds: boolean;
+  toggleSounds: () => void;
+  setSounds: (value: boolean) => void;
+
+
   connect: (mode: GameMode) => void;
   initPlayer: () => Player;
 
@@ -35,6 +40,17 @@ export const useGameStore = create<GameStoreState>()(
       worker: null,
       player: null,
       game: null,
+      sounds: true,
+
+      toggleSounds: () => {
+        set((state) => ({
+          sounds: !state.sounds,
+        }));
+      },
+
+      setSounds: (value: boolean) => {
+        set({ sounds: value });
+      },
 
       /* ---------- player ---------- */
       initPlayer: () => {
@@ -232,6 +248,7 @@ export const useGameStore = create<GameStoreState>()(
       partialize: (state) => ({
         player: state.player,
         game: state.game,
+        sounds: state.sounds,
       }),
     }
   )

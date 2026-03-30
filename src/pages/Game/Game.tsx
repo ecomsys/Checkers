@@ -17,6 +17,8 @@ export default function Game() {
     initPlayer,
     game,
     player,
+    sounds,
+    toggleSounds,
     selectPiece,
     makeMove,
     restartGame
@@ -58,7 +60,7 @@ export default function Game() {
     }
 
     // если появился новый ход → играем звук
-    if (currentMoves > prevMovesRef.current) {
+    if (currentMoves > prevMovesRef.current && !sounds) {
       playMoveSound();
     }
 
@@ -132,8 +134,8 @@ export default function Game() {
   }
 
   return (
-    <div className="flex flex-col h-screen py-4 gap-4 px-[0.9375rem] sm:px-[1.25rem] min-w-[20rem]">
-      <GameHeader game={game} onRestart={restartGame} />
+    <div className="flex flex-col py-4 gap-4 px-2.5 sm:px-[1.25rem] min-w-[20rem]">
+      <GameHeader game={game} onRestart={restartGame} toggleSounds={toggleSounds} sounds={sounds} />
 
       <BoardCanvas
         board={checkersState.board}

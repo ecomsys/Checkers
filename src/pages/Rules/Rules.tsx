@@ -27,13 +27,13 @@ export default function Rules() {
   const mode = game?.mode === "pve" ? "pve" : "eve"; // default to "eve" if game or mode is undefined
 
   const buttonBase =
-    "font-[Montserrat] font-bold text-xl md:text-2xl px-6 py-3 rounded-2xl transition-all duration-200 shadow-md w-full max-w-xs";
+    "font-[Montserrat] font-bold text-xl md:text-2xl px-20 py-3 rounded-2xl transition-all duration-200 shadow-md w-full xs:w-auto";
 
   const buttonTeal =
     "bg-gradient-to-br from-teal-500 via-teal-600 to-teal-700 text-white hover:scale-105 active:translate-y-[0.0625rem]";
 
   return (
-    <div className="flex flex-col gap-8 px-4 py-8 bg-teal-50/10 items-center w-full min-w-[20rem]">
+    <div className="flex flex-col gap-8 px-2.5 py-8 bg-teal-50/10 items-center min-w-[20rem]">
 
       {/* Кнопка Играть */}
       <button
@@ -80,6 +80,8 @@ export default function Rules() {
           </li>
         ))}
       </ul>
+
+      <div className="pb-5"></div>
     </div>
   );
 }
