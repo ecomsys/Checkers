@@ -22,6 +22,8 @@ interface GameStoreState {
   connect: (mode: GameMode) => void;
   initPlayer: () => Player;
 
+  pauseGame: () => void;
+  resumeGame: () => void;
   restartGame: () => void;
   selectPiece: (pos: Position) => void;
   makeMove: (move: Move<CheckersMove>) => void;
@@ -188,6 +190,16 @@ export const useGameStore = create<GameStoreState>()(
             mode: game.mode,
           },
         });
+      },
+
+      pauseGame: () => {
+        const { worker } = get();
+        worker?.postMessage({ type: "pause_game" });
+      },
+
+      resumeGame: () => {
+        const { worker } = get();
+        worker?.postMessage({ type: "resume_game" });
       },
 
       /* ---------- checkers ---------- */

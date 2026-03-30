@@ -35,12 +35,12 @@ export default function Rules() {
   return (
     <div className="flex flex-col gap-8 px-4 py-8 bg-teal-50/10 items-center w-full min-w-[20rem]">
 
-      {/* Кнопка назад */}
+      {/* Кнопка Играть */}
       <button
         className={`${buttonBase} ${buttonTeal} cursor-pointer`}
         onClick={() => navigate(`/game?mode=${mode}`)}
       >
-        Назад
+        В игру
       </button>
 
       {/* Заголовок */}

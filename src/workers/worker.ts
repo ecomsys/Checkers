@@ -22,6 +22,8 @@ let game: Game<CheckersState, CheckersMove> | null = null;
 let timerInterval: ReturnType<typeof setInterval> | null = null;
 let gameStartedAt: number | null = null;
 
+let aiTimeout: ReturnType<typeof setTimeout> | null = null;
+
 // ---------------- AI ----------------
 const AI_BOT_1: Player = {
   id: "aibot-1",
@@ -97,8 +99,8 @@ self.onmessage = (event: MessageEvent<WorkerRequest>) => {
         startTimer();
 
         triggerAIMoveIfNeeded(game, (aiMove) => {
-          applyCheckersMove(game!, aiMove, emit);
-        });
+          applyCheckersMove(game!, aiMove, emit,  registerAITimeout);
+        }, registerAITimeout);
       }
       break;
     }
@@ -121,9 +123,29 @@ self.onmessage = (event: MessageEvent<WorkerRequest>) => {
 
       // если EVE — продолжаем игру
       triggerAIMoveIfNeeded(game, (aiMove) => {
-        applyCheckersMove(game!, aiMove, emit);
-      });
+        applyCheckersMove(game!, aiMove, emit, registerAITimeout);
+      }, registerAITimeout);
 
+      break;
+    }
+
+    case "pause_game": {
+      stopTimer();
+
+      if (aiTimeout) {
+        clearTimeout(aiTimeout);
+        aiTimeout = null;
+      }
+
+      break;
+    }
+
+    case "resume_game": {
+      if (game?.status === "started") {
+        // пересчитываем старт чтобы не сбросить время
+        gameStartedAt = Date.now() - (game.state?.time ?? 0) * 1000;
+        startTimer();
+      }
       break;
     }
 
@@ -196,7 +218,7 @@ function handleMove(
   // AI turn
   triggerAIMoveIfNeeded(game, (aiMove) => {
     handleMove(game, aiMove);
-  });
+  }, registerAITimeout);
 }
 
 
@@ -227,7 +249,7 @@ function startTimer() {
       type: "game_updated",
       payload: game,
     });
-  }, 250);
+  }, 1000);
 }
 
 function stopTimer() {
@@ -235,4 +257,11 @@ function stopTimer() {
     clearInterval(timerInterval);
     timerInterval = null;
   }
+}
+
+function registerAITimeout(id: ReturnType<typeof setTimeout>) {
+  if (aiTimeout) {
+    clearTimeout(aiTimeout);
+  }
+  aiTimeout = id;
 }

@@ -33,6 +33,11 @@ export type WorkerRequest =
 
   | { type: "restore_game"; payload: Game<CheckersState, CheckersMove> }
 
+  | { type: "pause_game" }
+
+  | { type: "resume_game" }
+  
+
   | {
     type: "select_piece";
     payload: {

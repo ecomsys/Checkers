@@ -37,6 +37,16 @@ export default function Game() {
   }, [mode]);
 
   useEffect(() => {
+    const { resumeGame } = useGameStore.getState();
+    resumeGame();
+
+    return () => {
+      const { pauseGame } = useGameStore.getState();
+      pauseGame();
+    };
+  }, []);
+
+  useEffect(() => {
     if (!game?.history) return;
 
     const currentMoves = game.history.length;

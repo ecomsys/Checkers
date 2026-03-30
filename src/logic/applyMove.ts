@@ -8,7 +8,8 @@ type EmitFn = (msg: WorkerResponse) => void;
 export function applyCheckersMove(
   game: Game<CheckersState, CheckersMove>,
   move: Move<CheckersMove>,
-  emit: EmitFn
+  emit: EmitFn,
+  registerAITimeout: (id: ReturnType<typeof setTimeout>) => void
 ): boolean {
   if (!game.state) return false;
 
@@ -46,8 +47,8 @@ export function applyCheckersMove(
 
   // AI trigger
   triggerAIMoveIfNeeded(game, (aiMove) => {
-    applyCheckersMove(game, aiMove, emit);
-  });
+    applyCheckersMove(game, aiMove, emit, registerAITimeout);
+  }, registerAITimeout);
 
   return true;
 }

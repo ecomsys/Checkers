@@ -4,7 +4,8 @@ import { pickAIMove } from "./ai";
 
 export function triggerAIMoveIfNeeded(
   game: Game,
-  doMove: (move: Move<CheckersMove>) => void
+  doMove: (move: Move<CheckersMove>) => void,
+  registerTimeout: (id: ReturnType<typeof setTimeout>) => void
 ) {
   if (!game.state) return;
 
@@ -34,7 +35,7 @@ export function triggerAIMoveIfNeeded(
     delay = Math.random() * (2000 - 800) + 800;
   }
 
-  setTimeout(() => {
+  const timeoutId = setTimeout(() => {
     const freshState = game.state as CheckersState;
     if (!freshState || freshState.completed) return;
 
@@ -51,4 +52,6 @@ export function triggerAIMoveIfNeeded(
       payload,
     });
   }, delay);
+  
+  registerTimeout(timeoutId);
 }
