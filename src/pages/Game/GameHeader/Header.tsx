@@ -14,7 +14,7 @@ interface GameHeaderProps {
   sounds: boolean;
 }
 
-export function GameHeader({ game, onRestart, toggleSounds , sounds }: GameHeaderProps) {
+export function GameHeader({ game, onRestart, toggleSounds, sounds }: GameHeaderProps) {
   const navigate = useNavigate();
   const state = game.state;
 
@@ -70,12 +70,12 @@ export function GameHeader({ game, onRestart, toggleSounds , sounds }: GameHeade
         className="cursor-pointer"
         onClick={toggleSounds}
       >
-        <svg className={`w-10 h-10 ${sounds ? "text-amber-500" : "text-white"} hover:text-amber-300 transition duration-300`}>
+        <svg className={`w-10 h-10 ${sounds ? "text-white" : "text-amber-500"} hover:text-amber-300 transition duration-300`}>
           <use xlinkHref={`${import.meta.env.BASE_URL}/icons/sprite/sprite.svg#sounds`} />
         </svg>
       </AppButton>
 
-       {/* Заново */}
+      {/* Заново */}
       <AppButton
         variant="none"
         title="Начать заново"

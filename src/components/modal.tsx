@@ -15,7 +15,7 @@ const Modal: FC<ModalProps> = ({ state, onRestart, onLeave }) => {
 
   useEffect(() => {
     queueMicrotask(() => setConfetti(true));
-    if (!sounds) {
+    if (sounds) {
       const audio = new Audio("/games/checkers/sounds/win.mp3");
       audio.play().catch(() => { });
     }

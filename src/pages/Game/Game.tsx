@@ -51,16 +51,10 @@ export default function Game() {
   useEffect(() => {
     if (!game?.history) return;
 
-    const currentMoves = game.history.length;
-
-    // первый рендер пропускаем
-    if (prevMovesRef.current === 0) {
-      prevMovesRef.current = currentMoves;
-      return;
-    }
+    const currentMoves = game.history.length;  
 
     // если появился новый ход → играем звук
-    if (currentMoves > prevMovesRef.current && !sounds) {
+    if (currentMoves > prevMovesRef.current && sounds) {
       playMoveSound();
     }
 
